@@ -55,4 +55,30 @@ router.get('/dashboard', authMiddleware, async(req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /protected/me:
+ *   get:
+ *     summary: Get current authenticated user
+ *     tags:
+ *       - Protected
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Authenticated user returned successfully
+ *       401:
+ *         description: Access token required or invalid
+ */
+router.get('/me', authMiddleware, async(req, res) => {
+    return res.status(200).json({
+        message: 'Authenticated user',
+        user: {
+            id: req.user.id,
+            email: req.user.email,
+            created_at: req.user.created_at
+        }
+    });
+});
+
 module.exports = router;
