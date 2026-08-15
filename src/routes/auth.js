@@ -72,5 +72,55 @@ router.post('/logout', authMiddleware, async(req, res) => {
         message: 'Logout successful'
     });
 });
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refresh_token
+ *             properties:
+ *               refresh_token:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Access token refreshed successfully
+ *       400:
+ *         description: Refresh token is required
+ *       401:
+ *         description: Invalid refresh token
+ */
+router.post('/refresh', async(req, res) => {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+        return res.status(400).json({
+            error: 'Refresh token is required'
+        });
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({
+        refresh_token
+    });
+
+    if (error || !data.session) {
+        return res.status(401).json({
+            error: 'Invalid or expired refresh token'
+        });
+    }
+
+    return res.status(200).json({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token
+    });
+});
 
 module.exports = router;
