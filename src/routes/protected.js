@@ -3,7 +3,21 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Protected profile route
+/**
+ * @swagger
+ * /protected/profile:
+ *   get:
+ *     summary: Get authenticated user profile
+ *     tags:
+ *       - Protected
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile returned successfully
+ *       401:
+ *         description: Access token required or invalid
+ */
 router.get('/profile', authMiddleware, async(req, res) => {
     const user = req.user;
 
@@ -16,7 +30,21 @@ router.get('/profile', authMiddleware, async(req, res) => {
     });
 });
 
-// Second protected route
+/**
+ * @swagger
+ * /protected/dashboard:
+ *   get:
+ *     summary: Access protected dashboard
+ *     tags:
+ *       - Protected
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Protected dashboard accessed successfully
+ *       401:
+ *         description: Access token required or invalid
+ */
 router.get('/dashboard', authMiddleware, async(req, res) => {
     return res.status(200).json({
         message: 'Welcome to your protected dashboard',

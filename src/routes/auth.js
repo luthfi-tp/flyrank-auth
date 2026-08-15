@@ -8,7 +8,6 @@ const router = express.Router();
 router.post('/signup', async(req, res) => {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
         return res.status(400).json({
             error: 'Email and password are required'
@@ -35,7 +34,6 @@ router.post('/signup', async(req, res) => {
 router.post('/login', async(req, res) => {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
         return res.status(400).json({
             error: 'Email and password are required'
@@ -47,7 +45,7 @@ router.post('/login', async(req, res) => {
         password
     });
 
-    if (error) {
+    if (error || !data.session) {
         return res.status(401).json({
             error: 'Invalid login credentials'
         });
@@ -55,7 +53,8 @@ router.post('/login', async(req, res) => {
 
     return res.status(200).json({
         access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token
+        refresh_token: data.session.refresh_token,
+        user: data.user
     });
 });
 
@@ -65,11 +64,13 @@ router.post('/logout', authMiddleware, async(req, res) => {
 
     if (error) {
         return res.status(500).json({
-            error: 'Logout failed'
+            error: error.message
         });
     }
 
-    return res.status(204).send();
+    return res.status(200).json({
+        message: 'Logout successful'
+    });
 });
 
 module.exports = router;
