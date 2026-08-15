@@ -1,51 +1,28 @@
 const express = require('express');
-const supabase = require('../supabase');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Public route
-router.get('/public/info', (req, res) => {
-    res.status(200).json({
-        message: 'Welcome stranger! This info is public.'
+// Protected profile route
+router.get('/profile', authMiddleware, async(req, res) => {
+    const user = req.user;
+
+    return res.status(200).json({
+        user: {
+            id: user.id,
+            email: user.email,
+            created_at: user.created_at
+        }
     });
 });
 
-// Protected route - JWT verification
-router.get('/protected/profile', async(req, res) => {
-    const authHeader = req.headers.authorization;
-
-    // Check Authorization header
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({
-            error: 'Access token required'
-        });
-    }
-
-    // Extract token
-    const token = authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).json({
-            error: 'Access token required'
-        });
-    }
-
-    // Verify token with Supabase
-    const { data, error } = await supabase.auth.getUser(token);
-
-    // Invalid or expired token
-    if (error || !data.user) {
-        return res.status(401).json({
-            error: 'Invalid or expired access token'
-        });
-    }
-
-    // Valid token
+// Second protected route
+router.get('/dashboard', authMiddleware, async(req, res) => {
     return res.status(200).json({
+        message: 'Welcome to your protected dashboard',
         user: {
-            id: data.user.id,
-            email: data.user.email,
-            created_at: data.user.created_at
+            id: req.user.id,
+            email: req.user.email
         }
     });
 });

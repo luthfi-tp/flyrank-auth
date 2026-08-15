@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/auth', authRoutes);
-app.use('/', protectedRoutes);
+app.use('/protected', protectedRoutes);
 
 const PORT = process.env.PORT || 3000;
 
